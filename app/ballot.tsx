@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlassPanel } from '@/components/GlassPanel';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { StatusModal } from '@/components/StatusModal';
 import { Colors, Spacing } from '@/constants/theme';
 import api from '@/services/api';
 import { CircleCheck, Circle, Send, ArrowLeft, Info } from 'lucide-react-native';
@@ -13,6 +15,8 @@ export default function BallotScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [positions, setPositions] = useState<any[]>([]);
   const [selections, setSelections] = useState<Record<number, number[]>>({});
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [statusModal, setStatusModal] = useState({ visible: false, type: 'error' as any, title: '', message: '' });
   const router = useRouter();
 
   useEffect(() => {
@@ -68,18 +72,7 @@ export default function BallotScreen() {
       return;
     }
 
-    Alert.alert(
-      'Confirm Ballot',
-      'Are you sure you want to cast your vote? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Submit Vote', 
-          onPress: processSubmission,
-          style: 'default'
-        }
-      ]
-    );
+    setShowConfirmModal(true);
   };
 
   const processSubmission = async () => {
@@ -97,10 +90,18 @@ export default function BallotScreen() {
         selections: Object.values(selections).flat(),
       });
 
+      // Automatically log out after voting
+      await AsyncStorage.removeItem('voter_data');
+
       router.replace('/success');
     } catch (error: any) {
       const msg = error.response?.data?.error || 'Failed to submit ballot.';
-      Alert.alert('Error', msg);
+      setStatusModal({ 
+        visible: true, 
+        type: 'error', 
+        title: 'Submission Failed', 
+        message: msg 
+      });
     } finally {
       setSubmitting(false);
     }
@@ -190,6 +191,26 @@ export default function BallotScreen() {
         
         <View style={styles.footerSpacer} />
       </ScrollView>
+
+      <ConfirmationModal 
+        visible={showConfirmModal}
+        title="Confirm Your Vote"
+        message="Are you sure you want to cast your final ballot? This action is permanent and cannot be reversed."
+        confirmText="Submit Vote"
+        onConfirm={() => {
+          setShowConfirmModal(false);
+          processSubmission();
+        }}
+        onCancel={() => setShowConfirmModal(false)}
+      />
+
+      <StatusModal 
+        visible={statusModal.visible}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+        onClose={() => setStatusModal({ ...statusModal, visible: false })}
+      />
     </View>
   );
 }

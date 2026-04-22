@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlassPanel } from '@/components/GlassPanel';
+import { StatusModal } from '@/components/StatusModal';
 import { Colors } from '@/constants/theme';
 import api from '@/services/api';
 import { LogIn, User, CircleCheck as LucideCircleCheck } from 'lucide-react-native';
@@ -11,6 +13,7 @@ export default function LoginScreen() {
   const [studentId, setStudentId] = useState('');
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorModal, setErrorModal] = useState({ visible: false, title: '', message: '' });
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -35,7 +38,8 @@ export default function LoginScreen() {
       router.replace('/dashboard');
     } catch (error: any) {
       const msg = error.response?.data?.error || 'Failed to authenticate. Please check your credentials.';
-      Alert.alert('Error', msg);
+      console.error('Login Error:', error.response?.data || error.message);
+      setErrorModal({ visible: true, title: 'Authentication Error', message: msg });
     } finally {
       setLoading(false);
     }
@@ -43,12 +47,11 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <ImageBackground 
-        source={require('@/assets/splash-illustration.png')} 
-        style={styles.bgImage}
-        resizeMode="cover"
+      <LinearGradient
+        colors={[Colors.background, '#1e293b', '#0f172a']}
+        style={styles.bgGradient}
       >
-        <View style={styles.overlay} />
+
         
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -114,7 +117,15 @@ export default function LoginScreen() {
             </GlassPanel>
           </View>
         </KeyboardAvoidingView>
-      </ImageBackground>
+      </LinearGradient>
+
+      <StatusModal 
+        visible={errorModal.visible}
+        type="error"
+        title={errorModal.title}
+        message={errorModal.message}
+        onClose={() => setErrorModal({ ...errorModal, visible: false })}
+      />
     </View>
   );
 }
@@ -123,14 +134,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  bgImage: {
+  bgGradient: {
     flex: 1,
     width: '100%',
     height: '100%',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
   },
   keyboardView: {
     flex: 1,

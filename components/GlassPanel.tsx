@@ -6,14 +6,15 @@ import { Colors } from '../constants/theme';
 interface GlassPanelProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
   intensity?: number;
 }
 
-export const GlassPanel: React.FC<GlassPanelProps> = ({ children, style, intensity = 40 }) => {
+export const GlassPanel: React.FC<GlassPanelProps> = ({ children, style, contentStyle, intensity = 40 }) => {
   return (
     <View style={[styles.container, style]}>
       <BlurView intensity={intensity} tint="dark" style={StyleSheet.absoluteFill} />
-      <View style={styles.content}>{children}</View>
+      <View style={[styles.content, contentStyle]}>{children}</View>
     </View>
   );
 };

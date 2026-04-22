@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GlassPanel } from '@/components/GlassPanel';
 import { Colors } from '@/constants/theme';
-import { CircleCheck, Home, Share2 } from 'lucide-react-native';
+import { CircleCheck, LogOut, Share2 } from 'lucide-react-native';
 
 export default function SuccessScreen() {
   const router = useRouter();
@@ -31,10 +31,10 @@ export default function SuccessScreen() {
 
         <TouchableOpacity 
           style={styles.button} 
-          onPress={() => router.replace('/dashboard')}
+          onPress={() => router.replace('/login')}
         >
-          <Home size={20} color="#fff" style={{marginRight: 10}} />
-          <Text style={styles.buttonText}>Return to Dashboard</Text>
+          <LogOut size={20} color="#fff" style={{marginRight: 10}} />
+          <Text style={styles.buttonText}>Exit Session</Text>
         </TouchableOpacity>
       </View>
     </View>
