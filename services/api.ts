@@ -2,14 +2,14 @@ import axios from 'axios';
 
 import { Platform } from 'react-native';
 
-// Default to Android Emulator address for local development
-// For web, use localhost
-const BASE_URL = Platform.OS === 'web' ? 'http://localhost:8000' : 'http://10.0.2.2:8000'; 
+// Using localtunnel for mobile data access
+const BASE_URL = 'https://young-bobcats-begin.loca.lt'; 
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Bypass-Tunnel-Reminder': 'true', // Required to bypass the localtunnel warning page
   },
 });
 
