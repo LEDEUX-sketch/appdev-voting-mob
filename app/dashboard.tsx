@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlassPanel } from '@/components/GlassPanel';
 import { Colors } from '@/constants/theme';
 import api from '@/services/api';
-import { Vote, Calendar, ChevronRight, LogOut, Info } from 'lucide-react-native';
+import { Vote, Calendar, ChevronRight, LogOut, Info, RefreshCw } from 'lucide-react-native';
 
 export default function DashboardScreen() {
   const [elections, setElections] = useState([]);
@@ -20,6 +20,9 @@ export default function DashboardScreen() {
       if (studentDataStr) {
         const data = JSON.parse(studentDataStr);
         setVoterName(data.name);
+      } else {
+        router.replace('/login');
+        return;
       }
 
       const response = await api.get('/api/active-elections/');
@@ -78,9 +81,22 @@ export default function DashboardScreen() {
           <Text style={styles.welcomeText}>Welcome back,</Text>
           <Text style={styles.voterName}>{voterName}</Text>
         </View>
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <LogOut size={20} color={Colors.danger} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity 
+            style={[styles.headerBtn, { marginRight: 10 }]} 
+            onPress={onRefresh}
+            disabled={loading || refreshing}
+          >
+            <RefreshCw 
+              size={20} 
+              color={Colors.primary} 
+              style={refreshing ? { transform: [{ rotate: '45deg' }] } : {}} 
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.headerBtn, styles.logoutBtn]} onPress={handleLogout}>
+            <LogOut size={20} color={Colors.danger} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <Text style={styles.sectionTitle}>Active Elections</Text>
@@ -138,10 +154,17 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '800',
   },
-  logoutBtn: {
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerBtn: {
     padding: 10,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
+  },
+  logoutBtn: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
   },
   sectionTitle: {
     color: '#fff',

@@ -26,6 +26,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="dashboard" options={{ title: 'Elections' }} />
         <Stack.Screen name="ballot" options={{ title: 'Cast Your Vote' }} />
+        <Stack.Screen name="success" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="light" />
     </View>

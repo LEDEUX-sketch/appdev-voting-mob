@@ -20,6 +20,13 @@ export default function BallotScreen() {
   const router = useRouter();
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const voterDataStr = await AsyncStorage.getItem('voter_data');
+      if (!voterDataStr) {
+        router.replace('/login');
+      }
+    };
+    checkAuth();
     fetchBallot();
   }, [id]);
 
@@ -84,8 +91,6 @@ export default function BallotScreen() {
       const voterData = JSON.parse(voterDataStr);
       
       await api.post('/api/voter/submit-vote/', {
-        student_id: voterData.student_id,
-        token: voterData.token,
         election_id: id,
         selections: Object.values(selections).flat(),
       });
